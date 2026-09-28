@@ -15,6 +15,28 @@ license             GPL-3
 
 if {${subport} eq ${name}} {
 
+    github.setup    gnuradio gnuradio 3.10.12.0 v
+    # Change github.tarball_from to 'releases' or 'archive' next update
+    github.tarball_from tarball
+    checksums       rmd160  1d9c82dc0c6934e6cb02711d18b8da1fc1627617 \
+                    sha256  a4c7c7ced3a560bd98e4700f10d8c616edbc66b1d8eb4784eb798f7eb93b7a5a \
+                    size    4978489
+    revision        0
+
+    long_description    {*}${description}: \
+        This port is kept up with the GNU Radio release, \
+        currently ${version}, which is typically updated twice per year.
+
+    conflicts           gnuradio37 gnuradio38 gnuradio-next
+
+    set GR_VERSION_INFO "Release 3.10"
+
+    github.livecheck.regex  {(3\.10\.[0-9.]+)}
+}
+
+subport gnuradio38 {
+
+    name            gnuradio38
     github.setup    gnuradio gnuradio 3.8.5.0 v
     # Change github.tarball_from to 'releases' or 'archive' next update
     github.tarball_from tarball
@@ -24,10 +46,9 @@ if {${subport} eq ${name}} {
     revision        4
 
     long_description    {*}${description}: \
-        This port is kept up with the GNU Radio release, \
-        currently ${version}, which is typically updated twice per year.
-
-    conflicts           gnuradio37 gnuradio-next
+        This port is kept up with the GNU Radio 3.8 release, \
+        currently ${version}, which is the legacy 3.x branch\; \
+        please consider updating to the newer \'gnuradio\' port.
 
     # temporary patch to fix and allow external setting for
     # CMAKE_C/CXX_STANDARD
@@ -50,7 +71,9 @@ if {${subport} eq ${name}} {
 
     set GR_VERSION_INFO "Release 3.8"
 
-    github.livecheck.regex  {(3.8.[0-9.]+)}
+    conflicts           gnuradio gnuradio-next
+
+    github.livecheck.regex  {(3\.8\.[0-9.]+)}
 }
 
 subport gnuradio37 {
@@ -87,10 +110,9 @@ subport gnuradio37 {
 
     set GR_VERSION_INFO "Release 3.7"
 
-    conflicts_build gnuradio gnuradio-next
+    conflicts           gnuradio gnuradio-next
 
-    github.livecheck.regex  {(3.7.[0-9.]+)}
-
+    github.livecheck.regex  {(3\.7\.[0-9.]+)}
 }
 
 subport gnuradio-next {
@@ -117,7 +139,7 @@ subport gnuradio-next {
         deactivating the currently active gnuradio port, \
         cleaning any current builds, and trying again.
 
-    conflicts       gnuradio gnuradio37
+    conflicts       gnuradio gnuradio37 gnuradio38
 
     # fix Quartz behaviour
     # TODO verify https://github.com/gnuradio/gnuradio/issues/2726

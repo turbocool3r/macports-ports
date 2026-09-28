@@ -24,14 +24,19 @@ if {[string first "37" $subport] > 1} {
     default gnuradio.python_versions { 2.7 }
     default gnuradio.default_python_variant +python27
 } else {
-    # the following versions use all the same python
-    default gnuradio.python_versions {3.10}
-    default gnuradio.default_python_variant +python310
+    # gnuradio >= 3.8 supports Python 3.x; 3.10 supports python >= 3.7
+    default gnuradio.python_versions {3.11 3.12 3.13 3.14}
+    default gnuradio.default_python_variant +python311
 }
 
-# use C/C++11
-compiler.c_standard   2011
-compiler.cxx_standard 2011
+# Use C/C++11 for older versions; C++17 is required starting with 3.10
+if {[string first "37" $subport] > 1 || [string first "38" $subport] > 1} {
+    compiler.c_standard   2011
+    compiler.cxx_standard 2011
+} else {
+    compiler.c_standard   2011
+    compiler.cxx_standard 2017
+}
 boost.version 1.71
 
 # see https://github.com/macports/macports-ports/pull/7805
@@ -103,18 +108,25 @@ if {[string first "37" $subport] > 1} {
 
     configure.args-append \
         -DSWIG_EXECUTABLE=${prefix}/bin/swig3
-} else {
-    # add dependencies for gnuradio >= 3.8
-     depends_build-append \
+} elseif {[string first "38" $subport] > 1} {
+    # add dependencies for gnuradio 3.8: still uses SWIG
+    depends_build-append \
         port:swig-python
 
     configure.args-append \
         -DSWIG_EXECUTABLE=${prefix}/bin/swig
+} else {
+    # gnuradio >= 3.10 uses pybind11 instead of SWIG
+    depends_lib-append \
+        port:pybind11
 }
 
 if {[string first "gr37-" $subport] >= 0} {
     depends_lib-append \
         port:gnuradio37
+} elseif {[string first "gr38-" $subport] >= 0} {
+    depends_lib-append \
+        port:gnuradio38
 } elseif {[string first "gr-" $subport] >= 0} {
     depends_lib-append \
         path:lib/libgnuradio-runtime.dylib:gnuradio
